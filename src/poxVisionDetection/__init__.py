@@ -48,9 +48,9 @@ class CustomException(Exception):
         return self.error_message
 
 # # Testing the custom exception 
-try:
-    a = 1/0
-except Exception as ex:
-    logging.info("ZERO DIVISION EXCEPTION ")
-    raise CustomException(ex,sys)
+# try:
+#     a = 1/0
+# except Exception as ex:
+#     logging.info("ZERO DIVISION EXCEPTION ")
+#     raise CustomException(ex,sys)
 
