@@ -1,0 +1,117 @@
+schema: '2.0'
+stages:
+  data_ingestion:
+    cmd: python src/poxVisionDetection/pipeline/stage_01_data_ingestion.py
+    deps:
+    - path: config/config.yaml
+      hash: md5
+      md5: 3d76afb50cf7b43e13afa38137ed8bff
+      size: 1042
+    - path: src/poxVisionDetection/pipeline/stage_01_data_ingestion.py
+      hash: md5
+      md5: 004df0419dbdb5d4809fd622c7e7692e
+      size: 1146
+    outs:
+    - path: artifacts/data_ingestion/poxVisionDataSet
+      hash: md5
+      md5: fdbf87d4c97e7c45147336131dc6ebe0.dir
+      size: 1489650
+      nfiles: 228
+  prepare_base_model:
+    cmd: python src/poxVisionDetection/pipeline/stage_02_prepare_base_model.py
+    deps:
+    - path: config/config.yaml
+      hash: md5
+      md5: 3d76afb50cf7b43e13afa38137ed8bff
+      size: 1042
+    - path: src/poxVisionDetection/pipeline/stage_02_prepare_base_model.py
+      hash: md5
+      md5: 7c77ebf34cb18407cb362fa4a1c4f2c0
+      size: 1160
+    params:
+      params.yaml:
+        CLASSES: 2
+        IMAGE_SIZE:
+        - 224
+        - 224
+        - 3
+        INCLUDE_TOP: false
+        LEARNING_RATE: 0.01
+        WEIGHTS: imagenet
+    outs:
+    - path: artifacts/prepare_base_model
+      hash: md5
+      md5: 055e65ebef09fa24c76c62eb71a31a1e.dir
+      size: 190577080
+      nfiles: 2
+  training:
+    cmd: python src/poxVisionDetection/pipeline/stage_03_model_training.py
+    deps:
+    - path: artifacts/data_ingestion/poxVisionDataSet
+      hash: md5
+      md5: fdbf87d4c97e7c45147336131dc6ebe0.dir
+      size: 1489650
+      nfiles: 228
+    - path: artifacts/prepare_base_model
+      hash: md5
+      md5: 055e65ebef09fa24c76c62eb71a31a1e.dir
+      size: 190577080
+      nfiles: 2
+    - path: config/config.yaml
+      hash: md5
+      md5: 3d76afb50cf7b43e13afa38137ed8bff
+      size: 1042
+    - path: src/poxVisionDetection/components/prepare_callbacks.py
+      hash: md5
+      md5: 56d691840b8e4d76029484c4a9e1a168
+      size: 1029
+    - path: src/poxVisionDetection/pipeline/stage_03_model_training.py
+      hash: md5
+      md5: df6adcaf2e5c5c71bda2a055f6db5c70
+      size: 1500
+    params:
+      params.yaml:
+        AUGMENTATION: true
+        BATCH_SIZE: 15
+        EPOCHS: 2
+        IMAGE_SIZE:
+        - 224
+        - 224
+        - 3
+    outs:
+    - path: artifacts/training/model.h5
+      hash: md5
+      md5: ef86ab843d84a01a0abc9c0012bc8683
+      size: 96499440
+  evaluation:
+    cmd: python src/poxVisionDetection/pipeline/stage_04_model_evaluation.py
+    deps:
+    - path: artifacts/data_ingestion/poxVisionDataSet
+      hash: md5
+      md5: fdbf87d4c97e7c45147336131dc6ebe0.dir
+      size: 1489650
+      nfiles: 228
+    - path: artifacts/training/model.h5
+      hash: md5
+      md5: ef86ab843d84a01a0abc9c0012bc8683
+      size: 96499440
+    - path: config/config.yaml
+      hash: md5
+      md5: 3d76afb50cf7b43e13afa38137ed8bff
+      size: 1042
+    - path: src/poxVisionDetection/pipeline/stage_04_model_evaluation.py
+      hash: md5
+      md5: 4b2898e9eacce5f8630c204480bc6925
+      size: 1015
+    params:
+      params.yaml:
+        BATCH_SIZE: 15
+        IMAGE_SIZE:
+        - 224
+        - 224
+        - 3
+    outs:
+    - path: score.json
+      hash: md5
+      md5: 3ccb459e86af07bf244e8fb3f30fa0e5
+      size: 72
