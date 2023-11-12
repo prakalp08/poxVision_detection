@@ -30,16 +30,23 @@ class PrepareBaseModel:
             for layer in model.layers[:-freeze_till]:
                 model.trainable = False
 
-        flatten_in = tf.keras.layers.Flatten()(model.output)
+        flatten = model.output
 
-        prediction_layer        = tf.keras.layers.Dense(
-            units               = classes,
-            activation          = 'softmax'
-        )(flatten_in)
+        Globalavgpool2D   = tf.keras.layers.GlobalAveragePooling2D()(flatten)
 
-        full_model              = tf.keras.models.Model(
-            inputs              = model.input,
-            outputs             = prediction_layer
+        Dlayer1            = tf.keras.layers.Dense(
+            units           = 64,
+            activation      = 'relu'
+        )(Globalavgpool2D)
+
+        pred_layer            = tf.keras.layers.Dense(
+            units           = classes,
+            activation      = 'softmax'
+        )(Dlayer1)
+
+        full_model        = tf.keras.models.Model(
+            inputs          = model.input,
+            outputs         = pred_layer
         )
 
         print(full_model)

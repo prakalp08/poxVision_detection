@@ -3,7 +3,6 @@ from poxVisionDetection.components.prepare_base_model import PrepareBaseModel
 from poxVisionDetection import logging,CustomException
 import sys 
 
-
 STAGE_NAME = 'PREPARE BASE MODEL'
 
 class PrepareBaseModelTrainingPipeline:

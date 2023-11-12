@@ -26,8 +26,8 @@ stages:
       size: 1042
     - path: src/poxVisionDetection/pipeline/stage_02_prepare_base_model.py
       hash: md5
-      md5: 7c77ebf34cb18407cb362fa4a1c4f2c0
-      size: 1160
+      md5: c128ff1ec05a9aac8e09e1321ad6b1ad
+      size: 1158
     params:
       params.yaml:
         CLASSES: 2
@@ -41,8 +41,8 @@ stages:
     outs:
     - path: artifacts/prepare_base_model
       hash: md5
-      md5: 055e65ebef09fa24c76c62eb71a31a1e.dir
-      size: 190577080
+      md5: d334560ac34a0939245bacafd18cabf0.dir
+      size: 190301960
       nfiles: 2
   training:
     cmd: python src/poxVisionDetection/pipeline/stage_03_model_training.py
@@ -54,8 +54,8 @@ stages:
       nfiles: 228
     - path: artifacts/prepare_base_model
       hash: md5
-      md5: 055e65ebef09fa24c76c62eb71a31a1e.dir
-      size: 190577080
+      md5: d334560ac34a0939245bacafd18cabf0.dir
+      size: 190301960
       nfiles: 2
     - path: config/config.yaml
       hash: md5
@@ -72,8 +72,8 @@ stages:
     params:
       params.yaml:
         AUGMENTATION: true
-        BATCH_SIZE: 15
-        EPOCHS: 2
+        BATCH_SIZE: 20
+        EPOCHS: 6
         IMAGE_SIZE:
         - 224
         - 224
@@ -81,8 +81,8 @@ stages:
     outs:
     - path: artifacts/training/model.h5
       hash: md5
-      md5: ef86ab843d84a01a0abc9c0012bc8683
-      size: 96499440
+      md5: 55a0f9e672efcea641d3f2ae54300492
+      size: 95947400
   evaluation:
     cmd: python src/poxVisionDetection/pipeline/stage_04_model_evaluation.py
     deps:
@@ -93,8 +93,8 @@ stages:
       nfiles: 228
     - path: artifacts/training/model.h5
       hash: md5
-      md5: ef86ab843d84a01a0abc9c0012bc8683
-      size: 96499440
+      md5: 55a0f9e672efcea641d3f2ae54300492
+      size: 95947400
     - path: config/config.yaml
       hash: md5
       md5: 3d76afb50cf7b43e13afa38137ed8bff
@@ -105,7 +105,7 @@ stages:
       size: 1015
     params:
       params.yaml:
-        BATCH_SIZE: 15
+        BATCH_SIZE: 20
         IMAGE_SIZE:
         - 224
         - 224
@@ -113,5 +113,5 @@ stages:
     outs:
     - path: score.json
       hash: md5
-      md5: 3ccb459e86af07bf244e8fb3f30fa0e5
-      size: 72
+      md5: 3be3fbec5dabdef0d19e66e9624f3389
+      size: 71

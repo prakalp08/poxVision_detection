@@ -1,4 +1,5 @@
 from poxVisionDetection.entity.config_entity import TrainingConfig
+from tensorflow.keras.applications.resnet50 import preprocess_input
 import tensorflow as tf
 from pathlib import Path
 import matplotlib.pyplot as plt
@@ -15,74 +16,62 @@ class Training:
 
     def training_valid_generator(self):
         valid_datagenerator         = tf.keras.preprocessing.image.ImageDataGenerator(
-            rescale                    = 1.0/255,
-            validation_split           = 0.20,
+            preprocessing_function     = preprocess_input,
+            shear_range                = 0.2,
+            zoom_range                 = 0.2,
+            validation_split           = 0.4,
         )
 
-        # THIS VALID GENERATOR IS CREATED FOR VALIDATION COMPLETELY NEW SET OF IMAGES
+        # THIS GENERATOR HAS BEEN CREATED FOR THE TRAINING
+        self.train_generator        = valid_datagenerator.flow_from_directory(
+            directory                   = self.config.training_data,
+            target_size                 = self.config.params_image_size[:-1],
+            batch_size                  = self.config.params_batch_size,
+            class_mode                  = 'categorical',
+            subset                      = 'training',
+        )
+
+        # THIS GENERATOR HAS BEEN CREATED FOR THE VALIDATION
         self.valid_generator        = valid_datagenerator.flow_from_directory(
             directory                  = self.config.training_data,
             target_size                = self.config.params_image_size[:-1],
             batch_size                 = self.config.params_batch_size,
-            interpolation              = 'bilinear',       
+            class_mode                 = 'categorical',  
             subset                     = 'validation',
-            shuffle                    = False,
-        )
-
-        if self.config.params_is_augmentation:
-            train_generator         = tf.keras.preprocessing.image.ImageDataGenerator(
-                rescale                = 1.0/255,
-                validation_split       = 0.2,
-                rotation_range         = 40,
-                horizontal_flip        = True,
-                width_shift_range      = 0.2,
-                height_shift_range     = 0.2,
-                shear_range            = 0.2,
-                zoom_range             = 0.2,
-            )
-        else:
-            train_generator            = valid_datagenerator
-
-        # THIS GENERATOR IS MADE FOR TRAINING 
-        self.train_generator        = train_generator.flow_from_directory(
-            target_size                 = self.config.params_image_size[:-1],
-            batch_size                  = self.config.params_batch_size,
-            directory                   = self.config.training_data,
-            interpolation               = 'bilinear',
-            subset                      = 'training',
-            shuffle                     = True,
         )
 
     def train(self, callback_list : list):
-        self.steps_per_epoch         = self.train_generator.samples // self.train_generator.batch_size
-        self.validation_steps        = self.valid_generator.samples // self.valid_generator.batch_size
-
         trained_model = self.model.fit(
+
             self.train_generator,
+
             epochs                       = self.config.params_epochs,
-            steps_per_epoch              = self.steps_per_epoch,
-            validation_steps             = self.validation_steps,
+            steps_per_epoch              = 3,
+
             validation_data              = self.valid_generator,
+            validation_steps             = 2,
+
             callbacks                    = callback_list
         )
+
+        self.save_model(
+            path                     = self.config.training_model_path,
+            model                    = self.model
+        )
+        
         return trained_model
 
     def train_model_status(self, callback_list: list):
         trained_model = self.train(callback_list)
         plt.plot(trained_model.history['accuracy'])
         plt.plot(trained_model.history['val_accuracy'])
-        plt.axis(ymin=0.4,ymax=1)
+        plt.axis(ymin=0.0,ymax=1)
         plt.grid()
         plt.title('Model Accuracy')
         plt.ylabel('Accuracy')
         plt.xlabel('Epochs')
         plt.legend(['train','validation'])
         plt.show()
-
-        self.save_model(
-            path                     = self.config.training_model_path,
-            model                    = self.model
-        )
 
     @staticmethod
     def save_model(path : Path, model : tf.keras.Model):

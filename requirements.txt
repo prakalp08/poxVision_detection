@@ -14,5 +14,6 @@ types-pyYAML
 scipy
 Flask
 Flask-Core
+flask_cors
 tensorflow_hub
 -e .
