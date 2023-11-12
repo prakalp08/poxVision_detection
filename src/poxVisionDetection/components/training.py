@@ -79,6 +79,11 @@ class Training:
         plt.legend(['train','validation'])
         plt.show()
 
+        self.save_model(
+            path                     = self.config.training_model_path,
+            model                    = self.model
+        )
+
     @staticmethod
     def save_model(path : Path, model : tf.keras.Model):
         model.save(path)
